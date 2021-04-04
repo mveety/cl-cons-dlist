@@ -2,7 +2,34 @@
 ;;; Copyright 2021 Matthew Veety. Under BSD License
 ;;; See LICENSE for details.
 
+(in-package :cl-user)
+
+(defpackage :cl-cons-dlist
+  (:nicknames :dlist)
+  (:use :cl)
+  (:export #:*element-printing-limit*
+		   #:dlist
+		   #:dl-length
+		   #:dl-append
+		   #:dl-push
+		   #:dl-insert
+		   #:dl-remove
+		   #:dl-next
+		   #:dl-nextn
+		   #:dl-nextn-fast
+		   #:dl-prev
+		   #:dl-prevn
+		   #:dl-prevn-fast
+		   #:dl-head
+		   #:dl-tail
+		   #:dl-data
+		   #:dl-append-list
+		   #:dl-to-list
+		   #:make-dlist))
+
 (in-package :dlist)
+
+(defvar *element-printing-limit* 10)
 
 (defclass dlist ()
   ((length :initform 0)
@@ -179,6 +206,19 @@ lists that lisp chokes on."))
 		(return-from bail nil)))
 	t))
 
+(defmethod dl-nextn-fast ((list dlist) n)
+  (with-slots (cur) list
+	(let* ((tmp cur)
+		   (sc nil)
+		   (st (block bail
+				 (dotimes (x n)
+				   (when (null (setf sc (getnext tmp)))
+					 (return-from bail nil))
+				   (setf tmp sc))
+				 t)))
+	  (setf cur tmp)
+	  st)))
+
 (defmethod dl-prev ((list dlist))
   (with-slots (cur) list
 	(if (null (getprev cur))
@@ -193,6 +233,19 @@ lists that lisp chokes on."))
 	  (when (null (dl-prev list))
 		(return-from bail nil)))
 	t))
+
+(defmethod dl-prevn-fast ((list dlist) n)
+  (with-slots (cur) list
+	(let* ((tmp cur)
+		   (sc nil)
+		   (st (block bail
+				 (dotimes (x n)
+				   (when (null (setf sc (getprev tmp)))
+					 (return-from bail nil))
+				   (setf tmp sc))
+				 t)))
+	  (setf cur tmp)
+	  st)))
 
 (defmethod dl-head ((list dlist))
   (with-slots (head cur) list
@@ -212,7 +265,8 @@ lists that lisp chokes on."))
 
 (defmethod print-object ((list dlist) stream)
   (print-unreadable-object (list stream :type t)
-	(let ((tmplst (copy-dlist list)))
+	(let ((tmplst (copy-dlist list))
+		  (counter 0))
 	  (if (> (dl-length tmplst) 0)
 		  (progn
 			(format stream "length: ~A, data: " (dl-length tmplst))
@@ -220,7 +274,12 @@ lists that lisp chokes on."))
 			  (format stream "~S" (dl-data tmplst))
 			  (if (null (dl-next tmplst))
 				  (loop-finish)
-				  (format stream " "))))
+				  (if (< counter (1- *element-printing-limit*))
+					  (format stream " ")
+					  (progn
+						(format stream "...")
+						(loop-finish))))
+				  (incf counter)))
 		  (format stream "length: 0, data: nil")))))
 
 (defmethod dl-append-list ((dl dlist) list)

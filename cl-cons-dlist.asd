@@ -11,5 +11,4 @@
   :license "BSD"
   :version "0"
   :serial t
-  :components ((:file "package")
-			   (:file "dlist")))
+  :components ((:file "dlist")))
