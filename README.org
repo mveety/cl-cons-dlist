@@ -25,3 +25,9 @@
 
   This is all rather clunky, rough and ready. If you find any bugs or make
   improvements I'll gladly take them. Hope you find this useful!
+** A small warning
+   If you want to inspect the guts of the dlist class, be sure to set
+   ~*print-circle*~ to ~t~. Without it, your lisp will try it's little heart
+   out to print the mess of cons cells that's in there, but it will
+   ultimately fail, at best just blowing your stack, at worst crashing in a
+   variety of creative ways.
