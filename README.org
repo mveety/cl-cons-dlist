@@ -1,0 +1,27 @@
+* cl-cons-dlist
+  This is a sort of quick and dirty implementation of doubly linked lists
+  using just cons cells for the structure. The api is fairly conventional
+  with functions to push, insert, and append. Moving around the list is
+  done with dl-prev and dl-next. To get or set the data in the current
+  element use dl-data either alone or with setf. The length is tracked
+  automatically as operations are done to the list so calls to dl-length
+  are quite fast. Pushes and appends are similar because pointers to the
+  head and tail of the list are stored.
+
+  There are some convenience functions as well. A print-object method
+  exists to make using this at your repl a bit easier. dl-append-to-list
+  will append the contents of a list to a doubly linked list. dl-to-list
+  will convert a dlist to a list, and make-dlist can do the opposite.
+
+  As a general rule, functions that move the cursor around will return t if
+  the operation completed, and nil if it failed. dl-prevn and dl-nextn will
+  only return t if the operation fully completed. It is possible that it
+  was partially done when the nil was returned (ie you hit the end of the
+  list or so). Functions that deal with data will return the data that's
+  being worked with. dl-insert, dl-append, and dl-push all return the
+  object that was passed to it. dl-data will return the data in the current
+  element. The only weird outlier here is dl-remove. It will return t if
+  the operation succeeds, nil if it fails (ie remove on an empty list).
+
+  This is all rather clunky, rough and ready. If you find any bugs or make
+  improvements I'll gladly take them. Hope you find this useful!
