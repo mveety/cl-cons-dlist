@@ -169,22 +169,18 @@ lists that lisp chokes on."))
 			  (next (getnext cur)))
 		  (cond
 			((and (null prev) (null next))
-			 (format t "single element list~%")
 			 (setf head nil
 				   cur nil
 				   tail nil))
 			((and (null prev) next)
-			 (format t "cur = head~%")
 			 (set-prev next nil)
 			 (setf cur next
 				   head next))
 			((and prev (null next))
-			 (format t "cur = tail~%")
 			 (set-next prev nil)
 			 (setf cur prev
 				   tail prev))
 			(t
-			 (format t "cur is in the middle~%")
 			 (set-prev next prev)
 			 (set-next prev next)
 			 (setf cur prev)))
