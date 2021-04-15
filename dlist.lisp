@@ -8,24 +8,24 @@
   (:nicknames :dlist)
   (:use :cl)
   (:export #:*element-printing-limit*
-		   #:dlist
-		   #:dl-length
-		   #:dl-append
-		   #:dl-push
-		   #:dl-insert
-		   #:dl-remove
-		   #:dl-next
-		   #:dl-nextn
-		   #:dl-nextn-fast
-		   #:dl-prev
-		   #:dl-prevn
-		   #:dl-prevn-fast
-		   #:dl-head
-		   #:dl-tail
-		   #:dl-data
-		   #:dl-append-list
-		   #:dl-to-list
-		   #:make-dlist))
+	   #:dlist
+	   #:dl-length
+	   #:dl-append
+	   #:dl-push
+	   #:dl-insert
+	   #:dl-remove
+	   #:dl-next
+	   #:dl-nextn
+	   #:dl-nextn-fast
+	   #:dl-prev
+	   #:dl-prevn
+	   #:dl-prevn-fast
+	   #:dl-head
+	   #:dl-tail
+	   #:dl-data
+	   #:dl-append-list
+	   #:dl-to-list
+	   #:make-dlist))
 
 (in-package :dlist)
 
@@ -42,23 +42,23 @@ lists that lisp chokes on."))
 
 (defun initialize-dlist (list elem)
   (with-slots (length head cur tail) list
-	(if (and (null head) (null cur) (null tail))
-		(progn
-		  (setf head (cons (cons nil nil) elem)
-				length 1
-				cur head
-				tail head)
-		  elem)
-		nil)))
+    (if (and (null head) (null cur) (null tail))
+	(progn
+	  (setf head (cons (cons nil nil) elem)
+		length 1
+		cur head
+		tail head)
+	  elem)
+	nil)))
 
 (defun copy-dlist (list)
   (let ((nlist (make-instance 'dlist)))
-	(with-slots (length head cur tail) list
-	  (setf (slot-value nlist 'length) length
-			(slot-value nlist 'head) head
-			(slot-value nlist 'cur) head
-			(slot-value nlist 'tail) tail))
-	nlist))
+    (with-slots (length head cur tail) list
+      (setf (slot-value nlist 'length) length
+	    (slot-value nlist 'head) head
+	    (slot-value nlist 'cur) head
+	    (slot-value nlist 'tail) tail))
+    nlist))
 
 (defgeneric dl-length (list)
   (:documentation "Return the length of LIST"))
@@ -125,135 +125,135 @@ lists that lisp chokes on."))
 
 (defmethod dl-append ((list dlist) data)
   (with-slots (length head cur tail) list
-	(if (and (null head) (null cur) (null tail))
-		(initialize-dlist list data)
-		(let ((new-elem (new-element nil nil data)))
-		  (set-next tail new-elem)
-		  (set-prev new-elem tail)
-		  (setf tail new-elem)
-		  (incf length)
-		  data))))
+    (if (and (null head) (null cur) (null tail))
+	(initialize-dlist list data)
+	(let ((new-elem (new-element nil nil data)))
+	  (set-next tail new-elem)
+	  (set-prev new-elem tail)
+	  (setf tail new-elem)
+	  (incf length)
+	  data))))
 
 (defmethod dl-push ((list dlist) data)
   (with-slots (length head cur tail) list
-	(if (and (null head) (null cur) (null tail))
-		(initialize-dlist list data)
-		(let ((new-elem (new-element nil nil data)))
-		  (set-next new-elem head)
-		  (set-prev head new-elem)
-		  (setf head new-elem)
-		  (incf length)
-		  data))))
+    (if (and (null head) (null cur) (null tail))
+	(initialize-dlist list data)
+	(let ((new-elem (new-element nil nil data)))
+	  (set-next new-elem head)
+	  (set-prev head new-elem)
+	  (setf head new-elem)
+	  (incf length)
+	  data))))
 
 (defmethod dl-insert ((list dlist) data)
   (with-slots (length head cur tail) list
-	(if (and (null head) (null cur) (null tail))
-		(initialize-dlist list data)
-		(if (eq cur tail)
-			(progn
-			  (dl-append list data)
-			  (setf cur tail))
-			(progn (let ((new-elem (new-element nil nil data))
-						 (cur->next (getnext cur)))
-					 (set-prev new-elem cur)
-					 (set-next new-elem cur->next)
-					 (set-next cur new-elem)
-					 (set-prev cur->next new-elem)
-					 (setf cur new-elem)
-					 (incf length)))))
-		data))
+    (if (and (null head) (null cur) (null tail))
+	(initialize-dlist list data)
+	(if (eq cur tail)
+	    (progn
+	      (dl-append list data)
+	      (setf cur tail))
+	    (progn (let ((new-elem (new-element nil nil data))
+			 (cur->next (getnext cur)))
+		     (set-prev new-elem cur)
+		     (set-next new-elem cur->next)
+		     (set-next cur new-elem)
+		     (set-prev cur->next new-elem)
+		     (setf cur new-elem)
+		     (incf length)))))
+    data))
 
 (defmethod dl-remove ((list dlist))
   (with-slots (length head cur tail) list
-	(if (zerop length)
-		nil
-		(let ((prev (getprev cur))
-			  (next (getnext cur)))
-		  (cond
-			((and (null prev) (null next))
-			 (setf head nil
-				   cur nil
-				   tail nil))
-			((and (null prev) next)
-			 (set-prev next nil)
-			 (setf cur next
-				   head next))
-			((and prev (null next))
-			 (set-next prev nil)
-			 (setf cur prev
-				   tail prev))
-			(t
-			 (set-prev next prev)
-			 (set-next prev next)
-			 (setf cur prev)))
-		  (decf length)
-		  t))))
+    (if (zerop length)
+	nil
+	(let ((prev (getprev cur))
+	      (next (getnext cur)))
+	  (cond
+	    ((and (null prev) (null next))
+	     (setf head nil
+		   cur nil
+		   tail nil))
+	    ((and (null prev) next)
+	     (set-prev next nil)
+	     (setf cur next
+		   head next))
+	    ((and prev (null next))
+	     (set-next prev nil)
+	     (setf cur prev
+		   tail prev))
+	    (t
+	     (set-prev next prev)
+	     (set-next prev next)
+	     (setf cur prev)))
+	  (decf length)
+	  t))))
 
 (defmethod dl-next ((list dlist))
   (with-slots (cur) list
-	(if (null (getnext cur))
-		nil
-		(progn
-		  (setf cur (getnext cur))
-		  t))))
+    (if (null (getnext cur))
+	nil
+	(progn
+	  (setf cur (getnext cur))
+	  t))))
 
 (defmethod dl-nextn ((list dlist) n)
   (block bail
-	(dotimes (x n)
-	  (when (null (dl-next list))
-		(return-from bail nil)))
-	t))
+    (dotimes (x n)
+      (when (null (dl-next list))
+	(return-from bail nil)))
+    t))
 
 (defmethod dl-nextn-fast ((list dlist) n)
   (with-slots (cur) list
-	(let* ((tmp cur)
-		   (sc nil)
-		   (st (block bail
-				 (dotimes (x n)
-				   (when (null (setf sc (getnext tmp)))
-					 (return-from bail nil))
-				   (setf tmp sc))
-				 t)))
-	  (setf cur tmp)
-	  st)))
+    (let* ((tmp cur)
+	   (sc nil)
+	   (st (block bail
+		 (dotimes (x n)
+		   (when (null (setf sc (getnext tmp)))
+		     (return-from bail nil))
+		   (setf tmp sc))
+		 t)))
+      (setf cur tmp)
+      st)))
 
 (defmethod dl-prev ((list dlist))
   (with-slots (cur) list
-	(if (null (getprev cur))
-		nil
-		(progn
-		  (setf cur (getprev cur))
-		  t))))
+    (if (null (getprev cur))
+	nil
+	(progn
+	  (setf cur (getprev cur))
+	  t))))
 
 (defmethod dl-prevn ((list dlist) n)
   (block bail
-	(dotimes (x n)
-	  (when (null (dl-prev list))
-		(return-from bail nil)))
-	t))
+    (dotimes (x n)
+      (when (null (dl-prev list))
+	(return-from bail nil)))
+    t))
 
 (defmethod dl-prevn-fast ((list dlist) n)
   (with-slots (cur) list
-	(let* ((tmp cur)
-		   (sc nil)
-		   (st (block bail
-				 (dotimes (x n)
-				   (when (null (setf sc (getprev tmp)))
-					 (return-from bail nil))
-				   (setf tmp sc))
-				 t)))
-	  (setf cur tmp)
-	  st)))
+    (let* ((tmp cur)
+	   (sc nil)
+	   (st (block bail
+		 (dotimes (x n)
+		   (when (null (setf sc (getprev tmp)))
+		     (return-from bail nil))
+		   (setf tmp sc))
+		 t)))
+      (setf cur tmp)
+      st)))
 
 (defmethod dl-head ((list dlist))
   (with-slots (head cur) list
-	(setf cur head)
-	t))
+    (setf cur head)
+    t))
 
 (defmethod dl-tail ((list dlist))
   (with-slots (cur tail) list
-	(setf cur tail)
-	t))
+    (setf cur tail)
+    t))
 
 (defmethod dl-data ((list dlist))
   (cdr (slot-value list 'cur)))
@@ -263,41 +263,41 @@ lists that lisp chokes on."))
 
 (defmethod print-object ((list dlist) stream)
   (print-unreadable-object (list stream :type t)
-	(let ((tmplst (copy-dlist list))
-		  (counter 0))
-	  (if (> (dl-length tmplst) 0)
-		  (progn
-			(format stream "length: ~A, data: " (dl-length tmplst))
-			(loop do
-			  (format stream "~S" (dl-data tmplst))
-			  (if (null (dl-next tmplst))
-				  (loop-finish)
-				  (if (< counter (1- *element-printing-limit*))
-					  (format stream " ")
-					  (progn
-						(format stream "...")
-						(loop-finish))))
-				  (incf counter)))
-		  (format stream "length: 0, data: nil")))))
+    (let ((tmplst (copy-dlist list))
+	  (counter 0))
+      (if (> (dl-length tmplst) 0)
+	  (progn
+	    (format stream "length: ~A, data: " (dl-length tmplst))
+	    (loop do
+	      (format stream "~S" (dl-data tmplst))
+	      (if (null (dl-next tmplst))
+		  (loop-finish)
+		  (if (< counter (1- *element-printing-limit*))
+		      (format stream " ")
+		      (progn
+			(format stream "...")
+			(loop-finish))))
+	      (incf counter)))
+	  (format stream "length: 0, data: nil")))))
 
 (defmethod dl-append-list ((dl dlist) list)
   (dolist (x list)
-	(dl-append dl x)))
+    (dl-append dl x)))
 
 (defmethod dl-to-list ((list dlist))
   (if (< (dl-length list) 1)
-	  nil
-	  (let ((tmp nil)
-			(tdlist (copy-dlist list)))
-		(loop do
-		  (push (dl-data tdlist) tmp)
-		  (if (null (dl-next tdlist))
-			  (loop-finish)))
-		(nreverse tmp))))
+      nil
+      (let ((tmp nil)
+	    (tdlist (copy-dlist list)))
+	(loop do
+	  (push (dl-data tdlist) tmp)
+	  (if (null (dl-next tdlist))
+	      (loop-finish)))
+	(nreverse tmp))))
 
 (defun make-dlist (&optional source-list)
   "Create a new dlist, optionally filled using the contents of SOURCE-LIST"
   (let ((new-dlist (make-instance 'dlist)))
-	(unless (null source-list)
-	  (dl-append-list new-dlist source-list))
-	new-dlist))
+    (unless (null source-list)
+      (dl-append-list new-dlist source-list))
+    new-dlist))
